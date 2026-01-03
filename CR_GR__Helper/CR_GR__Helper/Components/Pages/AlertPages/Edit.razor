@@ -1,0 +1,116 @@
+﻿@page "/alerts/edit"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Alert</h2>
+<hr />
+@if (Alert is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Alert" OnValidSubmit="UpdateAlert" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Alert.Id" value="@Alert.Id" />
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="title" class="form-label">Title:</label>
+                    <InputText id="title" @bind-Value="Alert.Title" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Alert.Title" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Alert.Description" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Alert.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="posted_by" class="form-label">Posted_By:</label>
+                    <InputText id="posted_by" @bind-Value="Alert.Posted_By" class="form-control" />
+                    <ValidationMessage For="() => Alert.Posted_By" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="posteddate" class="form-label">PostedDate:</label>
+                    <InputDate id="posteddate" @bind-Value="Alert.PostedDate" class="form-control" />
+                    <ValidationMessage For="() => Alert.PostedDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="isurgent" class="form-label">IsUrgent:</label>
+                    <InputCheckbox id="isurgent" @bind-Value="Alert.IsUrgent" class="form-check-input" />
+                    <ValidationMessage For="() => Alert.IsUrgent" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="expirydate" class="form-label">ExpiryDate:</label>
+                    <InputDate id="expirydate" @bind-Value="Alert.ExpiryDate" class="form-control" />
+                    <ValidationMessage For="() => Alert.ExpiryDate" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/alerts">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Alert? Alert { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Alert ??= await context.Alert.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Alert is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateAlert()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Alert!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!AlertExists(Alert!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/alerts");
+    }
+
+    private bool AlertExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Alert.Any(e => e.Id == id);
+    }
+}

@@ -1,0 +1,70 @@
+﻿@page "/classes/create"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Classes</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Classes" OnValidSubmit="AddClasses" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="classname" class="form-label">ClassName:</label> 
+                <InputText id="classname" @bind-Value="Classes.ClassName" class="form-control" /> 
+                <ValidationMessage For="() => Classes.ClassName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="section" class="form-label">Section:</label> 
+                <InputText id="section" @bind-Value="Classes.Section" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Classes.Section" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="program" class="form-label">Program:</label> 
+                <InputText id="program" @bind-Value="Classes.Program" class="form-control" /> 
+                <ValidationMessage For="() => Classes.Program" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="semester" class="form-label">Semester:</label> 
+                <InputNumber id="semester" @bind-Value="Classes.Semester" class="form-control" /> 
+                <ValidationMessage For="() => Classes.Semester" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="cr" class="form-label">CR:</label> 
+                <InputText id="cr" @bind-Value="Classes.CR" class="form-control" /> 
+                <ValidationMessage For="() => Classes.CR" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="gr" class="form-label">GR:</label> 
+                <InputText id="gr" @bind-Value="Classes.GR" class="form-control" /> 
+                <ValidationMessage For="() => Classes.GR" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/classes">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Classes Classes { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddClasses()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Classes.Add(Classes);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/classes");
+    }
+}

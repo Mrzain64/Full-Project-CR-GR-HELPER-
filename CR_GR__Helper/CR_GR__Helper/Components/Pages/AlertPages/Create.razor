@@ -1,0 +1,71 @@
+﻿@page "/alerts/create"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Alert</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Alert" OnValidSubmit="AddAlert" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="title" class="form-label">Title:</label> 
+                <InputText id="title" @bind-Value="Alert.Title" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Alert.Title" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="description" class="form-label">Description:</label> 
+                <InputText id="description" @bind-Value="Alert.Description" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Alert.Description" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="posted_by" class="form-label">Posted_By:</label> 
+                <InputText id="posted_by" @bind-Value="Alert.Posted_By" class="form-control" /> 
+                <ValidationMessage For="() => Alert.Posted_By" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="posteddate" class="form-label">PostedDate:</label> 
+                <InputDate id="posteddate" @bind-Value="Alert.PostedDate" class="form-control" /> 
+                <ValidationMessage For="() => Alert.PostedDate" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="isurgent" class="form-label">IsUrgent:</label> 
+                <InputCheckbox id="isurgent" @bind-Value="Alert.IsUrgent" class="form-check-input" /> 
+                <ValidationMessage For="() => Alert.IsUrgent" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="expirydate" class="form-label">ExpiryDate:</label> 
+                <InputDate id="expirydate" @bind-Value="Alert.ExpiryDate" class="form-control" /> 
+                <ValidationMessage For="() => Alert.ExpiryDate" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/alerts">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Alert Alert { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddAlert()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Alert.Add(Alert);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/alerts");
+    }
+}

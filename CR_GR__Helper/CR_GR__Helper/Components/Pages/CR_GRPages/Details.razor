@@ -1,0 +1,52 @@
+﻿@page "/cr_grs/details"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>CR_GR</h2>
+    <hr />
+    @if (cr_gr is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@cr_gr.Name</dd>
+            <dt class="col-sm-2">Registration_No</dt>
+            <dd class="col-sm-10">@cr_gr.Registration_No</dd>
+            <dt class="col-sm-2">Email</dt>
+            <dd class="col-sm-10">@cr_gr.Email</dd>
+            <dt class="col-sm-2">Contact_number</dt>
+            <dd class="col-sm-10">@cr_gr.Contact_number</dd>
+        </dl>
+        <div>
+            <a href="@($"/cr_grs/edit?id={cr_gr.Id}")">Edit</a> |
+            <a href="@($"/cr_grs")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private CR_GR? cr_gr;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        cr_gr = await context.CR_GR.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (cr_gr is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

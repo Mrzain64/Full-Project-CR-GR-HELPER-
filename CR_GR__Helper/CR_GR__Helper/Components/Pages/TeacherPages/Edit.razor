@@ -1,0 +1,116 @@
+﻿@page "/teachers/edit"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Teacher</h2>
+<hr />
+@if (Teacher is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Teacher" OnValidSubmit="UpdateTeacher" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Teacher.Id" value="@Teacher.Id" />
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="Teacher.Name" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Teacher.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="email" class="form-label">Email:</label>
+                    <InputText id="email" @bind-Value="Teacher.Email" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Teacher.Email" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="phoneno" class="form-label">PhoneNo:</label>
+                    <InputText id="phoneno" @bind-Value="Teacher.PhoneNo" class="form-control" />
+                    <ValidationMessage For="() => Teacher.PhoneNo" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="department" class="form-label">Department:</label>
+                    <InputText id="department" @bind-Value="Teacher.Department" class="form-control" />
+                    <ValidationMessage For="() => Teacher.Department" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="isactive" class="form-label">IsActive:</label>
+                    <InputCheckbox id="isactive" @bind-Value="Teacher.IsActive" class="form-check-input" />
+                    <ValidationMessage For="() => Teacher.IsActive" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="subjects" class="form-label">Subjects:</label>
+                    <InputText id="subjects" @bind-Value="Teacher.Subjects" class="form-control" />
+                    <ValidationMessage For="() => Teacher.Subjects" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/teachers">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Teacher? Teacher { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Teacher ??= await context.Teacher.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Teacher is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateTeacher()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Teacher!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!TeacherExists(Teacher!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/teachers");
+    }
+
+    private bool TeacherExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Teacher.Any(e => e.Id == id);
+    }
+}

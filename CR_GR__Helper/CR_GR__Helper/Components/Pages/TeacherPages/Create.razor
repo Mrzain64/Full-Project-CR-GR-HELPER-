@@ -1,0 +1,212 @@
+﻿@page "/teachers/create"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create Teacher</PageTitle>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-badge-fill me-2"></i>Add New Teacher
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <EditForm method="post" Model="Teacher" OnValidSubmit="AddTeacher" FormName="create" Enhance>
+                        <DataAnnotationsValidator />
+
+                        @if (!string.IsNullOrEmpty(ErrorMessage))
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>@ErrorMessage
+                                <button type="button" class="btn-close" @onclick="() => ErrorMessage = string.Empty"></button>
+                            </div>
+                        }
+
+                        <ValidationSummary class="alert alert-danger" role="alert" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label fw-bold">
+                                    <span class="text-danger me-1">*</span>
+                                    <i class="bi bi-person me-1"></i>Teacher Name
+                                </label>
+                                <InputText id="name" @bind-Value="Teacher.Name"
+                                           class="form-control form-control-lg"
+                                           placeholder="Enter full name"
+                                           aria-required="true" />
+                                <ValidationMessage For="() => Teacher.Name" class="text-danger small mt-1" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label fw-bold">
+                                    <span class="text-danger me-1">*</span>
+                                    <i class="bi bi-envelope me-1"></i>Email Address
+                                </label>
+                                <InputText id="email" @bind-Value="Teacher.Email"
+                                           type="email"
+                                           class="form-control form-control-lg"
+                                           placeholder="teacher@example.com"
+                                           aria-required="true" />
+                                <ValidationMessage For="() => Teacher.Email" class="text-danger small mt-1" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phoneno" class="form-label fw-bold">
+                                    <i class="bi bi-telephone me-1"></i>Phone Number
+                                </label>
+                                <InputText id="phoneno" @bind-Value="Teacher.PhoneNo"
+                                           class="form-control form-control-lg"
+                                           placeholder="+92 300 1234567" />
+                                <ValidationMessage For="() => Teacher.PhoneNo" class="text-danger small mt-1" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="department" class="form-label fw-bold">
+                                    <i class="bi bi-building me-1"></i>Department
+                                </label>
+                                <InputText id="department" @bind-Value="Teacher.Department"
+                                           class="form-control form-control-lg"
+                                           placeholder="e.g., Computer Science" />
+                                <ValidationMessage For="() => Teacher.Department" class="text-danger small mt-1" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subjects" class="form-label fw-bold">
+                                <i class="bi bi-journal-text me-1"></i>Subjects
+                            </label>
+                            <InputText id="subjects" @bind-Value="Teacher.Subjects"
+                                       class="form-control form-control-lg"
+                                       placeholder="e.g., Data Structures, Algorithms, Database" />
+                            <small class="text-muted">Separate multiple subjects with commas</small>
+                            <ValidationMessage For="() => Teacher.Subjects" class="text-danger small mt-1" />
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <InputCheckbox id="isactive" @bind-Value="Teacher.IsActive"
+                                               class="form-check-input"
+                                               style="width: 3rem; height: 1.5rem; cursor: pointer;" />
+                                <label for="isactive" class="form-check-label fw-bold ms-2" style="cursor: pointer;">
+                                    <i class="bi bi-toggle-on me-1"></i>Active Status
+                                </label>
+                                <ValidationMessage For="() => Teacher.IsActive" class="text-danger small d-block mt-1" />
+                            </div>
+                            <small class="text-muted ms-5">Toggle to set teacher as active or inactive</small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="/teachers" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="bi bi-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg px-4" disabled="@IsSubmitting">
+                                @if (IsSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    <span>Creating...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-check-circle me-2"></i>
+                                    <span>Create Teacher</span>
+                                }
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+
+            <div class="mt-3 text-muted small text-center">
+                <i class="bi bi-info-circle me-1"></i>
+                Fields marked with <span class="text-danger">*</span> are required
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 12px;
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+        padding: 1.5rem;
+    }
+
+    .form-control-lg {
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+
+        .form-control-lg:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+        }
+
+    .form-check-input:checked {
+        background-color: #198754;
+        border-color: #198754;
+    }
+
+    .form-check-input:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+    }
+
+    .btn-lg {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+    }
+
+    .btn-outline-secondary:hover {
+        transform: translateY(-2px);
+    }
+</style>
+
+@code {
+    [SupplyParameterFromForm]
+    private Teacher Teacher { get; set; } = new();
+
+    private bool IsSubmitting { get; set; } = false;
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    private async Task AddTeacher()
+    {
+        try
+        {
+            IsSubmitting = true;
+            ErrorMessage = string.Empty;
+
+            using var context = DbFactory.CreateDbContext();
+            context.Teacher.Add(Teacher);
+            await context.SaveChangesAsync();
+
+            NavigationManager.NavigateTo("/teachers");
+        }
+        catch (Exception ex)
+        {
+            IsSubmitting = false;
+            ErrorMessage = "An error occurred while creating the teacher. Please try again.";
+            // Log the exception (ex) here if you have a logging service
+        }
+    }
+}

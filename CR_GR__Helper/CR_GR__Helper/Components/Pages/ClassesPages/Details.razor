@@ -1,0 +1,56 @@
+﻿@page "/classes/details"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Classes</h2>
+    <hr />
+    @if (classes is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ClassName</dt>
+            <dd class="col-sm-10">@classes.ClassName</dd>
+            <dt class="col-sm-2">Section</dt>
+            <dd class="col-sm-10">@classes.Section</dd>
+            <dt class="col-sm-2">Program</dt>
+            <dd class="col-sm-10">@classes.Program</dd>
+            <dt class="col-sm-2">Semester</dt>
+            <dd class="col-sm-10">@classes.Semester</dd>
+            <dt class="col-sm-2">CR</dt>
+            <dd class="col-sm-10">@classes.CR</dd>
+            <dt class="col-sm-2">GR</dt>
+            <dd class="col-sm-10">@classes.GR</dd>
+        </dl>
+        <div>
+            <a href="@($"/classes/edit?id={classes.Id}")">Edit</a> |
+            <a href="@($"/classes")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Classes? classes;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        classes = await context.Classes.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (classes is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

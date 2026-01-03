@@ -1,0 +1,63 @@
+﻿@page "/cr_grs/create"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Class Representatoin & Girls Representation Information</h1>
+
+<h2>CR_GR</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="CR_GR" OnValidSubmit="AddCR_GR" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="CR_GR.Name" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => CR_GR.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="registration_no" class="form-label">Registration_No:</label> 
+                <InputText id="registration_no" @bind-Value="CR_GR.Registration_No" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => CR_GR.Registration_No" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="email" class="form-label">Email:</label> 
+                <InputText id="email" @bind-Value="CR_GR.Email" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => CR_GR.Email" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="contact_number" class="form-label">Contact_number:</label> 
+                <InputText id="contact_number" @bind-Value="CR_GR.Contact_number" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => CR_GR.Contact_number" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/cr_grs">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private CR_GR CR_GR { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddCR_GR()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.CR_GR.Add(CR_GR);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/cr_grs");
+    }
+}

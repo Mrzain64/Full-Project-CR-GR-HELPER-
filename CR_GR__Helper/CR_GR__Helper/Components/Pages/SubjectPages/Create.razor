@@ -1,0 +1,60 @@
+﻿@page "/subjects/create"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Subject</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Subject" OnValidSubmit="AddSubject" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="subjectname" class="form-label">SubjectName:</label> 
+                <InputText id="subjectname" @bind-Value="Subject.SubjectName" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Subject.SubjectName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="credithours" class="form-label">CreditHours:</label> 
+                <InputNumber id="credithours" @bind-Value="Subject.CreditHours" class="form-control" /> 
+                <ValidationMessage For="() => Subject.CreditHours" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="teacherid" class="form-label">TeacherId:</label> 
+                <InputNumber id="teacherid" @bind-Value="Subject.TeacherId" class="form-control" /> 
+                <ValidationMessage For="() => Subject.TeacherId" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="isactive" class="form-label">IsActive:</label> 
+                <InputCheckbox id="isactive" @bind-Value="Subject.IsActive" class="form-check-input" /> 
+                <ValidationMessage For="() => Subject.IsActive" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/subjects">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Subject Subject { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddSubject()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Subject.Add(Subject);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/subjects");
+    }
+}

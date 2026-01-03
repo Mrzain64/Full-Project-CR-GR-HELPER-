@@ -1,0 +1,67 @@
+﻿@page "/cr_grs/delete"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>CR_GR</h2>
+    <hr />
+    @if (cr_gr is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@cr_gr.Name</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Registration_No</dt>
+            <dd class="col-sm-10">@cr_gr.Registration_No</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Email</dt>
+            <dd class="col-sm-10">@cr_gr.Email</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Contact_number</dt>
+            <dd class="col-sm-10">@cr_gr.Contact_number</dd>
+        </dl>
+        <EditForm method="post" Model="cr_gr" OnValidSubmit="DeleteCR_GR" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(cr_gr is null)">Delete</button> |
+            <a href="/cr_grs">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private CR_GR? cr_gr;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        cr_gr = await context.CR_GR.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (cr_gr is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteCR_GR()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.CR_GR.Remove(cr_gr!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/cr_grs");
+    }
+}

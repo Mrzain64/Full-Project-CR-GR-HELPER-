@@ -1,0 +1,501 @@
+﻿@page "/"
+<PageTitle>CR GR Helper - Home</PageTitle>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        overflow-x: hidden;
+    }
+
+    .hero-section {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+    @@keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    .floating-elements {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .float-item {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        animation: float-up 15s infinite ease-in-out;
+    }
+
+        .float-item:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .float-item:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
+        .float-item:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            bottom: 15%;
+            left: 25%;
+            animation-delay: 6s;
+        }
+
+        .float-item:nth-child(4) {
+            width: 120px;
+            height: 120px;
+            top: 40%;
+            right: 30%;
+            animation-delay: 9s;
+        }
+
+    @@keyframes float-up {
+        0%, 100% {
+            transform: translateY(0) scale(1);
+        }
+
+        50% {
+            transform: translateY(-30px) scale(1.1);
+        }
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 10;
+    }
+
+    .hero-content {
+        text-align: center;
+        color: white;
+    }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-content .subtitle {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .hero-content .tagline {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .hero-content .intro {
+            font-size: 1.15rem;
+            max-width: 750px;
+            margin: 0 auto 40px;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+
+    .cta-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 40px;
+    }
+
+    .btn-primary {
+        padding: 18px 40px;
+        background: white;
+        color: #6366f1;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            background: #f0f0ff;
+        }
+
+    .btn-secondary {
+        padding: 18px 40px;
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #6366f1;
+            transform: translateY(-3px);
+        }
+
+    .features-section {
+        padding: 100px 20px;
+        background: linear-gradient(180deg, #fafafe 0%, #ffffff 100%);
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 70px;
+    }
+
+        .section-header h2 {
+            font-size: 2.8rem;
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: #64748b;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #f1f5f9;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.15);
+        }
+
+            .feature-card:hover::before {
+                transform: scaleX(1);
+            }
+
+    .feature-icon {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        display: inline-block;
+        filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.2));
+    }
+
+    .feature-card h3 {
+        font-size: 1.5rem;
+        color: #1e293b;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .feature-card p {
+        color: #64748b;
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    .why-section {
+        padding: 100px 20px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .why-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: white;
+            clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 100%);
+        }
+
+    .why-content {
+        max-width: 900px;
+        margin: 0 auto;
+        text-align: center;
+        color: white;
+        position: relative;
+        z-index: 1;
+    }
+
+        .why-content h2 {
+            font-size: 2.8rem;
+            margin-bottom: 30px;
+            font-weight: 800;
+        }
+
+        .why-content p {
+            font-size: 1.25rem;
+            line-height: 2;
+            opacity: 0.95;
+        }
+
+    .cta-section {
+        padding: 120px 20px;
+        text-align: center;
+        background: white;
+    }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .cta-section p {
+            font-size: 1.3rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto 50px;
+        }
+
+    .stats {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        margin-top: 60px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        font-size: 1.1rem;
+        color: #64748b;
+        margin-top: 10px;
+    }
+
+    @@media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2.2rem;
+        }
+
+        .hero-content .subtitle {
+            font-size: 1.3rem;
+        }
+
+        .hero-content .tagline {
+            font-size: 1.1rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cta-buttons {
+            flex-direction: column;
+        }
+
+        .stats {
+            gap: 30px;
+        }
+    }
+</style>
+
+<section class="hero-section">
+    <div class="floating-elements">
+        <div class="float-item"></div>
+        <div class="float-item"></div>
+        <div class="float-item"></div>
+        <div class="float-item"></div>
+    </div>
+    <div class="container">
+        <div class="hero-content">
+            <h1>Class Representator (CR) & Girls Representator (GR)<br />Helping Platform</h1>
+            <div class="subtitle">Welcome to CR GR Helper 🚀</div>
+            <div class="tagline">Streamline Your Credit & Goods Receipt Process</div>
+            <p class="intro">Your intelligent companion for managing Credit (CR) and Goods Receipt (GR) operations with ease and efficiency! 📦✨</p>
+            <div class="cta-buttons">
+                <a href="/teachers" class="btn-primary">Get Started Free</a>
+                <a href="#features" class="btn-secondary">Explore Features</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="features-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>What We Do 💼</h2>
+            <p>CR GR Helper is designed to simplify and automate the complex workflow of tracking, managing, and reconciling credit notes and goods receipts in your business operations. Whether you're dealing with vendor invoices, purchase orders, or inventory management, our platform brings everything together in one centralized, user-friendly interface.</p>
+        </div>
+
+        <div class="section-header" style="margin-top: 80px;">
+            <h2>Our Scope 🎯</h2>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <h3>Smart Tracking</h3>
+                <p>Monitor all your CR and GR transactions in real-time with complete transparency. Never lose sight of important operations.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Automated Reconciliation</h3>
+                <p>Match invoices with goods receipts automatically, reducing manual errors and saving valuable time for your team.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3>Instant Notifications</h3>
+                <p>Stay updated with timely alerts on pending approvals, discrepancies, and important updates throughout your workflow.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3>Comprehensive Reports</h3>
+                <p>Generate detailed analytics and reports to gain insights into your procurement and accounting processes.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure & Reliable</h3>
+                <p>Your data is protected with enterprise-grade security, ensuring confidentiality and compliance at all times.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🤝</div>
+                <h3>Collaboration Made Easy</h3>
+                <p>Enable seamless communication between procurement, finance, and warehouse teams all in one place.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="why-section">
+    <div class="container">
+        <div class="why-content">
+            <h2>Why Choose CR GR Helper? 🌟</h2>
+            <p>Say goodbye to spreadsheets, endless email threads, and manual reconciliation headaches! Our platform is built to enhance accuracy, boost productivity, and give you complete control over your credit and goods receipt management. From small businesses to large enterprises, CR GR Helper scales with your needs and grows with your success.</p>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <h2>Get Started Today! 💪🎉</h2>
+        <p>Transform the way you manage your business operations with CR GR Helper</p>
+        <a href="#" class="btn-primary">Start Your Free Trial</a>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">10x</div>
+                <div class="stat-label">Faster Processing</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">99%</div>
+                <div class="stat-label">Accuracy Rate</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Support Available</div>
+            </div>
+        </div>
+    </div>
+</section>

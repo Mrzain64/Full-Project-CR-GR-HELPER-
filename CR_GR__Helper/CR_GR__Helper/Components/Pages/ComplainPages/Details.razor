@@ -1,0 +1,64 @@
+﻿@page "/complains/details"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Complain</h2>
+    <hr />
+    @if (complain is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Title</dt>
+            <dd class="col-sm-10">@complain.Title</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@complain.Description</dd>
+            <dt class="col-sm-2">ComplainantName</dt>
+            <dd class="col-sm-10">@complain.ComplainantName</dd>
+            <dt class="col-sm-2">ComplainantEmail</dt>
+            <dd class="col-sm-10">@complain.ComplainantEmail</dd>
+            <dt class="col-sm-2">ComplainantPhone</dt>
+            <dd class="col-sm-10">@complain.ComplainantPhone</dd>
+            <dt class="col-sm-2">SubmittedDate</dt>
+            <dd class="col-sm-10">@complain.SubmittedDate</dd>
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">@complain.Status</dd>
+            <dt class="col-sm-2">Category</dt>
+            <dd class="col-sm-10">@complain.Category</dd>
+            <dt class="col-sm-2">ResolvedDate</dt>
+            <dd class="col-sm-10">@complain.ResolvedDate</dd>
+            <dt class="col-sm-2">Priority</dt>
+            <dd class="col-sm-10">@complain.Priority</dd>
+        </dl>
+        <div>
+            <a href="@($"/complains/edit?id={complain.Id}")">Edit</a> |
+            <a href="@($"/complains")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Complain? complain;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        complain = await context.Complain.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (complain is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

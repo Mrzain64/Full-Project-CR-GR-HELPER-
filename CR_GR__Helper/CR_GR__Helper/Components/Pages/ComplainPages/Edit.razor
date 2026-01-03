@@ -1,0 +1,137 @@
+﻿@page "/complains/edit"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Complain</h2>
+<hr />
+@if (Complain is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Complain" OnValidSubmit="UpdateComplain" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Complain.Id" value="@Complain.Id" />
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="title" class="form-label">Title:</label>
+                    <InputText id="title" @bind-Value="Complain.Title" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Complain.Title" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Complain.Description" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Complain.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="complainantname" class="form-label">ComplainantName:</label>
+                    <InputText id="complainantname" @bind-Value="Complain.ComplainantName" class="form-control" />
+                    <ValidationMessage For="() => Complain.ComplainantName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="complainantemail" class="form-label">ComplainantEmail:</label>
+                    <InputText id="complainantemail" @bind-Value="Complain.ComplainantEmail" class="form-control" />
+                    <ValidationMessage For="() => Complain.ComplainantEmail" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="complainantphone" class="form-label">ComplainantPhone:</label>
+                    <InputText id="complainantphone" @bind-Value="Complain.ComplainantPhone" class="form-control" />
+                    <ValidationMessage For="() => Complain.ComplainantPhone" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="submitteddate" class="form-label">SubmittedDate:</label>
+                    <InputDate id="submitteddate" @bind-Value="Complain.SubmittedDate" class="form-control" />
+                    <ValidationMessage For="() => Complain.SubmittedDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="status" class="form-label">Status:</label>
+                    <InputText id="status" @bind-Value="Complain.Status" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Complain.Status" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category:</label>
+                    <InputText id="category" @bind-Value="Complain.Category" class="form-control" />
+                    <ValidationMessage For="() => Complain.Category" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="resolveddate" class="form-label">ResolvedDate:</label>
+                    <InputDate id="resolveddate" @bind-Value="Complain.ResolvedDate" class="form-control" />
+                    <ValidationMessage For="() => Complain.ResolvedDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="priority" class="form-label">Priority:</label>
+                    <InputText id="priority" @bind-Value="Complain.Priority" class="form-control" />
+                    <ValidationMessage For="() => Complain.Priority" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/complains">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Complain? Complain { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Complain ??= await context.Complain.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Complain is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateComplain()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Complain!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ComplainExists(Complain!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/complains");
+    }
+
+    private bool ComplainExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Complain.Any(e => e.Id == id);
+    }
+}

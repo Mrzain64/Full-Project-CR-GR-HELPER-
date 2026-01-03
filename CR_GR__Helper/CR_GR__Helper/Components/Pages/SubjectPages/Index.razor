@@ -1,0 +1,510 @@
+﻿@page "/subjects"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CR_GR__Helper.Models
+@using CR_GR__Helper.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+
+<PageTitle>Subjects</PageTitle>
+
+<style>
+    .subjects-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-header {
+        margin-bottom: 40px;
+        animation: fadeInDown 0.6s ease;
+    }
+
+    @@keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        color: #1e293b;
+        margin-bottom: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .page-header p {
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        gap: 20px;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.6s ease 0.2s backwards;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .filters-group {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        flex: 1;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 45px 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+            .search-box input:focus {
+                outline: none;
+                border-color: #ec4899;
+                box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+            }
+
+    .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+    }
+
+    .filter-select {
+        padding: 14px 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #ec4899;
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+        }
+
+    .btn-create {
+        padding: 14px 30px;
+        background: linear-gradient(135deg, #ec4899, #db2777);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(236, 72, 153, 0.4);
+        }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+        animation: fadeInUp 0.6s ease 0.3s backwards;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        border-left: 4px solid #ec4899;
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .subjects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+        animation: fadeInUp 0.6s ease 0.4s backwards;
+    }
+
+    .subject-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border-top: 5px solid #ec4899;
+    }
+
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #fce7f3 0%, transparent 70%);
+            border-radius: 0 0 0 100%;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(236, 72, 153, 0.15);
+        }
+
+    .subject-header {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 20px;
+    }
+
+    .subject-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(236, 72, 153, 0.2);
+    }
+
+    .subject-name {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .subject-details {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 10px;
+    }
+
+    .detail-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 10px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .btn-edit {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+        .btn-edit:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+    .btn-details {
+        background: #fce7f3;
+        color: #9f1239;
+    }
+
+        .btn-details:hover {
+            background: #ec4899;
+            color: white;
+        }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #64748b;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    @@media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filters-group {
+            flex-direction: column;
+        }
+
+        .search-box {
+            max-width: 100%;
+        }
+
+        .subjects-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="subjects-container">
+    <div class="page-header">
+        <h1>
+            <span>📚</span>
+            Subject Management
+        </h1>
+        <p>Manage all your subjects and courses</p>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-value">@context.Subject.Count()</div>
+            <div class="stat-label">Total Subjects</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #10b981;">
+            <div class="stat-value">@context.Subject.Count(s => s.IsActive)</div>
+            <div class="stat-label">Active Subjects</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #f59e0b;">
+            <div class="stat-value">@(context.Subject.Any() ? context.Subject.Sum(s => s.CreditHours) : 0)</div>
+            <div class="stat-label">Total Credit Hours</div>
+        </div>
+    </div>
+
+    <div class="header-actions">
+        <div class="filters-group">
+            <div class="search-box">
+                <input type="text" placeholder="Search subjects..."
+                       @bind="searchTerm" @bind:event="oninput" />
+                <span class="search-icon">🔍</span>
+            </div>
+            <select class="filter-select" @bind="statusFilter">
+                <option value="">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+        <a href="subjects/create" class="btn-create">
+            <span>➕</span>
+            Add Subject
+        </a>
+    </div>
+
+    <div class="subjects-grid">
+        @if (FilteredSubjects.Any())
+        {
+            @foreach (var subject in FilteredSubjects)
+            {
+                <div class="subject-card">
+                    <div class="subject-header">
+                        <div class="subject-icon">📖</div>
+                        <div class="subject-name">@subject.SubjectName</div>
+                        <span class="@(subject.IsActive ? "status-badge status-active" : "status-badge status-inactive")">
+                            @(subject.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </div>
+
+                    <div class="subject-details">
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <span>⏱️</span>
+                                Credit Hours
+                            </div>
+                            <div class="detail-value">@subject.CreditHours</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">
+                                <span>👨‍🏫</span>
+                                Teacher ID
+                            </div>
+                            <div class="detail-value">@subject.TeacherId</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a href="@($"subjects/edit?id={subject.Id}")" class="btn-action btn-edit">Edit</a>
+                        <a href="@($"subjects/details?id={subject.Id}")" class="btn-action btn-details">Details</a>
+                        <a href="@($"subjects/delete?id={subject.Id}")" class="btn-action btn-delete">Delete</a>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h3>No subjects found</h3>
+                <p>Try adjusting your filters or add a new subject</p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private CR_GR__HelperContext context = default!;
+    private string searchTerm = "";
+    private string statusFilter = "";
+
+    private IEnumerable<Subject> FilteredSubjects
+    {
+        get
+        {
+            var subjects = context.Subject.ToList();
+
+            if (!string.IsNullOrWhiteSpace(statusFilter))
+            {
+                if (statusFilter == "Active")
+                    subjects = subjects.Where(s => s.IsActive).ToList();
+                else
+                    subjects = subjects.Where(s => !s.IsActive).ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var search = searchTerm.ToLower();
+                subjects = subjects.Where(s =>
+                    s.SubjectName.ToLower().Contains(search) ||
+                    s.TeacherId.ToString().Contains(search)
+                ).ToList();
+            }
+
+            return subjects;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

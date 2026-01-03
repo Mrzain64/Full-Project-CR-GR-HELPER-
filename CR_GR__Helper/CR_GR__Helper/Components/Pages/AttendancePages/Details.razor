@@ -1,0 +1,54 @@
+﻿@page "/attendances/details"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Attendance</h2>
+    <hr />
+    @if (attendance is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Date</dt>
+            <dd class="col-sm-10">@attendance.Date</dd>
+            <dt class="col-sm-2">StudentId</dt>
+            <dd class="col-sm-10">@attendance.StudentId</dd>
+            <dt class="col-sm-2">SubjectId</dt>
+            <dd class="col-sm-10">@attendance.SubjectId</dd>
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">@attendance.Status</dd>
+            <dt class="col-sm-2">Remarks</dt>
+            <dd class="col-sm-10">@attendance.Remarks</dd>
+        </dl>
+        <div>
+            <a href="@($"/attendances/edit?id={attendance.Id}")">Edit</a> |
+            <a href="@($"/attendances")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Attendance? attendance;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        attendance = await context.Attendance.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (attendance is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

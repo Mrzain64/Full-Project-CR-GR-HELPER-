@@ -1,0 +1,469 @@
+﻿@page "/classes"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CR_GR__Helper.Models
+@using CR_GR__Helper.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+
+<PageTitle>Classes</PageTitle>
+
+<style>
+    .classes-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-header {
+        margin-bottom: 40px;
+        animation: fadeInDown 0.6s ease;
+    }
+
+    @@keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        color: #1e293b;
+        margin-bottom: 10px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .page-header p {
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        gap: 20px;
+        flex-wrap: wrap;
+        animation: fadeInUp 0.6s ease 0.2s backwards;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .search-box {
+        flex: 1;
+        max-width: 400px;
+        position: relative;
+    }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 45px 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+            .search-box input:focus {
+                outline: none;
+                border-color: #8b5cf6;
+                box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            }
+
+    .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+    }
+
+    .btn-create {
+        padding: 14px 30px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+    }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.4);
+        }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+        animation: fadeInUp 0.6s ease 0.3s backwards;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        border-left: 4px solid #8b5cf6;
+        transition: all 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .classes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+        animation: fadeInUp 0.6s ease 0.4s backwards;
+    }
+
+    .class-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-top: 5px solid #8b5cf6;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .class-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #f3e8ff 0%, transparent 70%);
+            border-radius: 0 0 0 100%;
+        }
+
+        .class-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.15);
+        }
+
+    .class-header {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 20px;
+    }
+
+    .class-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .class-program {
+        font-size: 1rem;
+        color: #8b5cf6;
+        font-weight: 600;
+    }
+
+    .class-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .detail-item {
+        background: #f8fafc;
+        padding: 12px;
+        border-radius: 10px;
+        border-left: 3px solid #8b5cf6;
+    }
+
+    .detail-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .representatives {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .rep-badge {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .cr-badge {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        font-weight: 600;
+    }
+
+    .gr-badge {
+        background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+        color: #9f1239;
+        font-weight: 600;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 10px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .btn-edit {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+        .btn-edit:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+    .btn-details {
+        background: #f3e8ff;
+        color: #6b21a8;
+    }
+
+        .btn-details:hover {
+            background: #9333ea;
+            color: white;
+        }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #64748b;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    @@media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            max-width: 100%;
+        }
+
+        .classes-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="classes-container">
+    <div class="page-header">
+        <h1>
+            <span>🎓</span>
+            Classes Management
+        </h1>
+        <p>Manage all your classes and sections</p>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-value">@context.Classes.Count()</div>
+            <div class="stat-label">Total Classes</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #3b82f6;">
+            <div class="stat-value">@context.Classes.Select(c => c.Program).Distinct().Count()</div>
+            <div class="stat-label">Programs</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #ec4899;">
+            <div class="stat-value">@context.Classes.Select(c => c.Section).Distinct().Count()</div>
+            <div class="stat-label">Sections</div>
+        </div>
+    </div>
+
+    <div class="header-actions">
+        <div class="search-box">
+            <input type="text" placeholder="Search classes..."
+                   @bind="searchTerm" @bind:event="oninput" />
+            <span class="search-icon">🔍</span>
+        </div>
+        <a href="classes/create" class="btn-create">
+            <span>➕</span>
+            Add New Class
+        </a>
+    </div>
+
+    <div class="classes-grid">
+        @if (FilteredClasses.Any())
+        {
+            @foreach (var classItem in FilteredClasses)
+            {
+                <div class="class-card">
+                    <div class="class-header">
+                        <div class="class-name">@classItem.ClassName</div>
+                        <div class="class-program">@classItem.Program</div>
+                    </div>
+
+                    <div class="class-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Section</div>
+                            <div class="detail-value">@classItem.Section</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Semester</div>
+                            <div class="detail-value">@classItem.Semester</div>
+                        </div>
+                    </div>
+
+                    <div class="representatives">
+                        <div class="rep-badge cr-badge">
+                            <div style="font-size: 0.75rem; opacity: 0.8;">CR</div>
+                            <div>@classItem.CR</div>
+                        </div>
+                        <div class="rep-badge gr-badge">
+                            <div style="font-size: 0.75rem; opacity: 0.8;">GR</div>
+                            <div>@classItem.GR</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a href="@($"classes/edit?id={classItem.Id}")" class="btn-action btn-edit">Edit</a>
+                        <a href="@($"classes/details?id={classItem.Id}")" class="btn-action btn-details">Details</a>
+                        <a href="@($"classes/delete?id={classItem.Id}")" class="btn-action btn-delete">Delete</a>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h3>No classes found</h3>
+                <p>Try adjusting your search or add a new class</p>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private CR_GR__HelperContext context = default!;
+    private string searchTerm = "";
+
+    private IEnumerable<Classes> FilteredClasses
+    {
+        get
+        {
+            var classes = context.Classes.ToList();
+
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return classes;
+
+            var search = searchTerm.ToLower();
+            return classes.Where(c =>
+                c.ClassName.ToLower().Contains(search) ||
+                c.Section.ToLower().Contains(search) ||
+                c.Program.ToLower().Contains(search) ||
+                c.CR.ToLower().Contains(search) ||
+                c.GR.ToLower().Contains(search)
+            );
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

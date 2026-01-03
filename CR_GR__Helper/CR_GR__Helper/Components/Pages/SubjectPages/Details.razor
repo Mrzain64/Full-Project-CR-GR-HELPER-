@@ -1,0 +1,52 @@
+﻿@page "/subjects/details"
+@using Microsoft.EntityFrameworkCore
+@using CR_GR__Helper.Models
+@inject IDbContextFactory<CR_GR__Helper.Data.CR_GR__HelperContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Subject</h2>
+    <hr />
+    @if (subject is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">SubjectName</dt>
+            <dd class="col-sm-10">@subject.SubjectName</dd>
+            <dt class="col-sm-2">CreditHours</dt>
+            <dd class="col-sm-10">@subject.CreditHours</dd>
+            <dt class="col-sm-2">TeacherId</dt>
+            <dd class="col-sm-10">@subject.TeacherId</dd>
+            <dt class="col-sm-2">IsActive</dt>
+            <dd class="col-sm-10">@subject.IsActive</dd>
+        </dl>
+        <div>
+            <a href="@($"/subjects/edit?id={subject.Id}")">Edit</a> |
+            <a href="@($"/subjects")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Subject? subject;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        subject = await context.Subject.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (subject is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
